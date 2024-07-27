@@ -122,3 +122,21 @@ body {
 #send-btn:hover {
     background-color: #3db875;
 }
+
+.message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.message.user {
+  background-color: #3db875;
+  color: white;
+  text-align: right;
+}
+
+.message.bot {
+  background-color: #248A52;
+  color: white;
+  text-align: left;
+}

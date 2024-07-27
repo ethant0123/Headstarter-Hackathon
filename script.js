@@ -1,53 +1,29 @@
-document.getElementById('send-btn').addEventListener('click', sendMessage);
-
-async function sendMessage() {
+document.getElementById('send-btn').addEventListener('click', async () => {
     const userInput = document.getElementById('user-input').value;
-    if (userInput.trim() === '') return;
+    addMessage(userInput, 'user');
+    document.getElementById('user-input').value = '';
 
-    try {
-        // Update the port number in the fetch URL if your backend is running on a different port
-        const response = await fetch('http://localhost:5001/api/chat', { // Change to the correct port
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: userInput })
-        });
+    const response = await fetch('/recommend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: userInput })
+    });
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        displayResponse(data);
-
-    } catch (error) {
-        console.error('Error:', error);
-        displayResponse({ message: 'Sorry, there was an error processing your request.', books: [] });
+    const data = await response.json();
+    if (data && data.bookRecommendation) {
+        addMessage(`Here is a preview:\n${data.bookRecommendation}`, 'bot');
+    } else {
+        addMessage(`Sorry, I couldn't find any books matching your query.`, 'bot');
     }
-}
+});
 
-function displayResponse(data) {
+function addMessage(text, sender) {
     const chatBox = document.getElementById('chat-box');
-
-    // Display the chatbot's response
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message');
-    messageElement.innerHTML = `<strong>Bot:</strong> ${data.message}`;
-    chatBox.appendChild(messageElement);
-
-    // Display book recommendations, if any
-    if (data.books && data.books.length > 0) {
-        const booksElement = document.createElement('div');
-        booksElement.classList.add('books');
-        booksElement.innerHTML = data.books.map(book => `
-            <div class="book">
-                <h3>${book.volumeInfo.title}</h3>
-                <p>${book.volumeInfo.authors ? book.volumeInfo.authors.join(', ') : 'Unknown Author'}</p>
-            </div>
-        `).join('');
-        chatBox.appendChild(booksElement);
-    }
-
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', sender);
+    messageDiv.innerText = text;
+    chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
