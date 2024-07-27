@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
@@ -11,6 +12,7 @@ app.use(cors());
 
 app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
+    const apiKey = process.env.OPENAI_API_KEY;
 
     try {
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
@@ -18,7 +20,7 @@ app.post('/api/chat', async (req, res) => {
             messages: [{ role: 'user', content: userMessage }]
         }, {
             headers: {
-                'Authorization': `Bearer YOUR_API_KEY`,
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             }
         });
